@@ -1,4 +1,4 @@
-# Codoworks Go Boilerplate
+# Pipeweaver GitOps Application
 
 <!-- [![Go Build](https://github.com/codoworks/go-boilerplate/actions/workflows/go.yml/badge.svg)](https://github.com/codoworks/go-boilerplate/actions/workflows/go.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/codoworks/go-boilerplate)](https://goreportcard.com/report/github.com/codoworks/go-boilerplate)
@@ -6,7 +6,7 @@
 [![Codacy Security Scan](https://github.com/codoworks/go-boilerplate/actions/workflows/codacy.yml/badge.svg)](https://github.com/codoworks/go-boilerplate/actions/workflows/codacy.yml)
 [![Actively Maintained](https://img.shields.io/badge/Maintenance%20Level-Actively%20Maintained-green.svg)](https://gist.github.com/cheerfulstoic/d107229326a01ff0f333a1d3476e068d) -->
 
-This is a data engineering platform application I (Suhaib Shah) am working on. This project serves mainly to teach me about how GitOps tooling can be built to serve platform usecases relevant to data engineering and data platforms.
+This is a data engineering platform application I (Suhaib Shah) am working on. This project serves mainly to help me learn more about how GitOps tooling can be built to serve platform usecases relevant to data engineering and a data platforms.
 This service is written using `GoLang v1.22.5`.
 
 ```
@@ -18,7 +18,6 @@ This service is written using `GoLang v1.22.5`.
          |_|
 ```
 
-<details>
 <summary><b>Architecture</b></summary>
 
 In its current state this application will accept webhook calls from a git repository (of your choosing), where it will process pipelines defined in YAML files and generate Apache Airflow DAGs in a destination directory. Only merging into the 'main' branch will trigger this application to generate the corresponding Airflow, for the sake of simplicity require your merge commits to be squashed merges, one squashed merge commit will contain a combined list of all files modified.
@@ -29,7 +28,6 @@ This service is _loosely_ structured using a hexagonal architecture (AKA Clean A
 
 <img align="middle" src="docs/clean-architecture.png">
 
-<details>
 <summary><b>Usage</b></summary>
 
 ### Env Vars
@@ -42,7 +40,6 @@ Environment variables are evaluated in the following order to allow flexibility 
 
 During development, it is recommended to use a `.env` file. You can find a reference under /.env.sample` to get started.
 
-<details open>
 <summary><b>Roadmap</b></summary>
 
 - [ ] Queue based processing of webhooks
@@ -54,8 +51,6 @@ During development, it is recommended to use a `.env` file. You can find a refer
 - [ ] Swagger integration
 - [ ] Postman collection
 - [ ] More documentation
-
-</details>
 
 ### Contribution
 
