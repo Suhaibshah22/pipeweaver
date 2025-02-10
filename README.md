@@ -1,4 +1,4 @@
-# Pipeweaver GitOps Application
+# PipeWeaver GitOps Application
 
 <!-- [![Go Build](https://github.com/codoworks/go-boilerplate/actions/workflows/go.yml/badge.svg)](https://github.com/codoworks/go-boilerplate/actions/workflows/go.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/codoworks/go-boilerplate)](https://goreportcard.com/report/github.com/codoworks/go-boilerplate)
