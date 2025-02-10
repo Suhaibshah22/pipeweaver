@@ -18,7 +18,7 @@ This service is written using `GoLang v1.22.5`.
          |_|
 ```
 
-<summary><b>Architecture</b></summary>
+### Architecture
 
 In its current state this application will accept webhook calls from a git repository (of your choosing), where it will process pipelines defined in YAML files and generate Apache Airflow DAGs in a destination directory. Only merging into the 'main' branch will trigger this application to generate the corresponding Airflow, for the sake of simplicity require your merge commits to be squashed merges, one squashed merge commit will contain a combined list of all files modified.
 
@@ -28,9 +28,7 @@ This service is _loosely_ structured using a hexagonal architecture (AKA Clean A
 
 <img align="middle" src="docs/clean-architecture.png">
 
-<summary><b>Usage</b></summary>
-
-### Env Vars
+### Usage
 
 Environment variables are evaluated in the following order to allow flexibility when running in production:
 
@@ -40,7 +38,7 @@ Environment variables are evaluated in the following order to allow flexibility 
 
 During development, it is recommended to use a `.env` file. You can find a reference under /.env.sample` to get started.
 
-<summary><b>Roadmap</b></summary>
+### Roadmap
 
 - [ ] Queue based processing of webhooks
 - [ ] Distributed locking and concurrency management
