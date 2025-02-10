@@ -22,6 +22,40 @@ This service is written using `GoLang v1.22.5`.
 
 In its current state this application will accept webhook calls from a git repository (of your choosing), where it will process pipelines defined in YAML files and generate Apache Airflow DAGs in a destination directory. Only merging into the 'main' branch will trigger this application to generate the corresponding Airflow, for the sake of simplicity require your merge commits to be squashed merges, one squashed merge commit will contain a combined list of all files modified.
 
+#### Sample Pipeline Definition
+
+Here is sample pipeline definition, that will be translated into an Airflow DAG python script.
+
+```
+pipeline:
+  name: "pg_to_snowflake_ingest"
+  version: "1.0.0"
+  domain: "data-platform"
+  description: "Extract some data and load some data"
+
+  schedule:
+    type: "cron"
+    expression: "0 3 * * *" #daily at 3 AM
+
+  steps:
+    - name: "extract-and-load"
+      type: "ingestion"
+      description: "Extract from Postgres, load into Snowflake"
+      inputs:
+        - name: "postgres-source"
+          type: "postgres"
+          host: "subscription-db.exampled.com"
+          database: "subscriptions"
+          table: "user_subscriptions"
+      outputs:
+        - name: "snowflake-dest"
+          type: "snowflake"
+          table_name: "analytics.user_subscriptions"
+
+resources:
+  compute_cluster: "data-platform-default-cluster"
+```
+
 #### Clean Architecture Diagram
 
 This service is _loosely_ structured using a hexagonal architecture (AKA Clean Architecture), at its core we treat our pipeline definitions as our domain models (which in this case are in a Git repository, much like we would have rows in a database _repository_). Our adapter layers will map between our domain and usecase layer. The usecases is where our business logic is contained. The application layer contains our application entry points (i.e controllers, scheduled tasks, etc).
