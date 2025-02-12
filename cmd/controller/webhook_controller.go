@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"context"
 	"encoding/json"
 	"io"
 	"log/slog"
@@ -52,21 +51,14 @@ func (wc *WebhookController) HandleWebhook(c *gin.Context) {
 		return
 	}
 
-	// Only process the repository if the event is a push to the main branch
-	if payload.Ref != "refs/heads/main" {
-		wc.Log.Info("Ignoring event", "event", payload.Ref)
-		c.JSON(http.StatusOK, gin.H{"status": "Ignoring event"})
-		return
+	// Enqueue Processing the request using the usecase
+	select {
+	case usecase.ProcessPipelinesQueue <- payload:
+		wc.Log.Info("Webhook request enqueued", "repo", payload.Repository.Name)
+		c.JSON(http.StatusAccepted, gin.H{"status": "Webhook request accepted for processing"})
+	default:
+		// Queue is full, reject request
+		wc.Log.Error("Queue is full, dropping request")
+		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "Queue is full, try again later"})
 	}
-
-	// Process the repository using the use case
-	err = wc.ProcessPipelineUsecase.Execute(context.Background(), payload)
-	if err != nil {
-		wc.Log.Error("Failed to process repository", "error", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to process repository"})
-		return
-	}
-
-	// Respond with success
-	c.JSON(http.StatusOK, gin.H{"status": "Repository processed successfully"})
 }
