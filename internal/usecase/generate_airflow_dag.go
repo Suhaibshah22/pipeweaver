@@ -14,7 +14,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-const TEMPLATE_PATH = "internal/usecase/templates/dag_template.py.tmpl"
+const TEMPLATE_BASE_PATH = "internal/usecase/templates/dag_template.py.tmpl"
 
 type GenerateAirFlowDAGUsecase interface {
 	Execute(ctx context.Context, pipelineFileContent []byte, filePath string) ([]byte, error)
@@ -69,8 +69,12 @@ func (uc *generateAirFlowDAGUsecase) Execute(ctx context.Context, pipelineFileCo
 		SnowflakeTable: getDataRef(upd.Pipeline.Steps, "Snowflake").TableName,
 	}
 
-	// 3. Generate DAG content
-	return GenerateAirflowDAG(uc, dagData, TEMPLATE_PATH)
+	// 3. Determine Template Path based on version
+	templatePath := TEMPLATE_BASE_PATH + "." + upd.Pipeline.Version
+	uc.Log.Info("Pipeline template path", "info", templatePath)
+
+	// 4. Generate DAG content
+	return GenerateAirflowDAG(uc, dagData, templatePath)
 }
 
 func parseUPD(yamlData []byte) (*entity.UnifiedPipelineDefinition, error) {

@@ -74,9 +74,9 @@ During development, it is recommended to use a `.env` file. You can find a refer
 
 ### Roadmap
 
-- [ ] Queue based processing of webhooks
+- [x] Queue based processing of webhooks
+- [x] Support for template versioning
 - [ ] Distributed locking and concurrency management
-- [ ] Support for template versioning
 - [ ] Preview DAG generation when PR is raised (like TF plan)
 - [ ] Enhanced error handling
 - [ ] Code cleanup and in-line documentation
