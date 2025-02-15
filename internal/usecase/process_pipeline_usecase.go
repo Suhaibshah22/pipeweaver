@@ -20,8 +20,11 @@ import (
 const PIPELINES_DIRECTORY = "pipelines/"
 const OUTPUT_DIRECTORY = "airflow-dags/"
 
+var ProcessPipelinesQueue chan external.GitHubWebhookPayload
+
 type ProcessPipelineUsecase interface {
-	Execute(ctx context.Context, payload external.GitHubWebhookPayload) error
+	execute(ctx context.Context, payload external.GitHubWebhookPayload) error
+	StartQueue(ctx context.Context)
 }
 
 type processPipelineUsecase struct {
@@ -41,6 +44,8 @@ func NewProcessPipelineUsecase(
 	logger *slog.Logger,
 	cfg *config.Config,
 ) ProcessPipelineUsecase {
+	ProcessPipelinesQueue = make(chan external.GitHubWebhookPayload, 100)
+
 	return &processPipelineUsecase{
 		GitRepository:             gitRepo,
 		GitHubService:             gitHubService,
@@ -51,7 +56,28 @@ func NewProcessPipelineUsecase(
 	}
 }
 
-func (uc *processPipelineUsecase) Execute(ctx context.Context, payload external.GitHubWebhookPayload) error {
+func (uc *processPipelineUsecase) StartQueue(ctx context.Context) {
+	for {
+		select {
+		case payload := <-ProcessPipelinesQueue:
+			err := uc.execute(ctx, payload)
+			if err != nil {
+				uc.Log.Error("Error processing pipeline", "error", err)
+			}
+		case <-ctx.Done():
+			uc.Log.Info("Queue processor shutting down...")
+			return
+		}
+	}
+}
+
+func (uc *processPipelineUsecase) execute(ctx context.Context, payload external.GitHubWebhookPayload) error {
+	// Only process the repository if the event is a push to the main branch
+	if payload.Ref != "refs/heads/main" {
+		uc.Log.Info("Ignoring event", "event", payload.Ref)
+		return nil
+	}
+
 	// Extract modified files
 	modifiedPipelines := payload.HeadCommit.Modified
 	modifiedPipelines = util.FilterByPrefix(modifiedPipelines, "pipelines/")

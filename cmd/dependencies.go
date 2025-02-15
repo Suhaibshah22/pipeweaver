@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"os"
 
 	"github.com/Suhaibshah22/pipeweaver/cmd/config"
@@ -37,7 +38,7 @@ type Container struct {
 	GitHubService external.GitHubService
 }
 
-func InitializeContainer(cfg *config.Config) *Container {
+func InitializeContainer(cfg *config.Config, ctx context.Context) *Container {
 	container := &Container{
 		Config: cfg,
 	}
@@ -75,6 +76,11 @@ func InitializeContainer(cfg *config.Config) *Container {
 
 	// Initialize Controllers
 	container.WebhookController = controller.NewWebhookController(container.ProcessRepositoryUseCase, container.Logger, cfg)
+
+	// Start the queue worker in a separate goroutine
+	go func() {
+		container.ProcessRepositoryUseCase.StartQueue(ctx)
+	}()
 
 	return container
 }
