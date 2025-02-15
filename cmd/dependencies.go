@@ -3,8 +3,6 @@ package cmd
 import (
 	"context"
 	"os"
-	"os/signal"
-	"syscall"
 
 	"github.com/Suhaibshah22/pipeweaver/cmd/config"
 	"github.com/Suhaibshah22/pipeweaver/cmd/controller"
@@ -40,7 +38,7 @@ type Container struct {
 	GitHubService external.GitHubService
 }
 
-func InitializeContainer(cfg *config.Config) *Container {
+func InitializeContainer(cfg *config.Config, ctx context.Context) *Container {
 	container := &Container{
 		Config: cfg,
 	}
@@ -79,22 +77,9 @@ func InitializeContainer(cfg *config.Config) *Container {
 	// Initialize Controllers
 	container.WebhookController = controller.NewWebhookController(container.ProcessRepositoryUseCase, container.Logger, cfg)
 
-	// Initialize Queue Context
-	ctx, cancel := context.WithCancel(context.Background())
-
 	// Start the queue worker in a separate goroutine
 	go func() {
 		container.ProcessRepositoryUseCase.StartQueue(ctx)
-	}()
-
-	// Handle graceful shutdown when the application stops
-	go func() {
-		sigChan := make(chan os.Signal, 1)
-		signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
-
-		<-sigChan
-		cancel()
-		container.Logger.Info("Shutting down pipelinequeue processor gracefully...")
 	}()
 
 	return container
